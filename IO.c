@@ -32,3 +32,4 @@ void address_latch()
     // 用完ALE置一
     ALE = 1;
 }
+

@@ -51,6 +51,8 @@ unsigned int combine(unsigned char a, unsigned char b) {
     return (a << 8) | b;
 }
 
+
+
 void debug() {
     unsigned char col;
     // 数码管：1
