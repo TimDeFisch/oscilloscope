@@ -13,6 +13,8 @@ void digital_read() {
 // 地址输出函数
 void address_latch()
 {
+    
+    
     // P00-P07对应A0-A7
     P0 = address_buffer & 0xFF;
 
@@ -29,6 +31,7 @@ void address_latch()
         address_buffer = 0;
     }
 
+    void delay_10us(1);//延时一下，等待地址稳定
     // 用完ALE置一
     ALE = 1;
 }

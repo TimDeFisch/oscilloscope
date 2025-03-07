@@ -28,7 +28,10 @@ sbit RCLK = P1 ^ 2; // 锁存时钟
 sbit KEY1 = P3 ^ 4;
 sbit KEY2 = P3 ^ 5;
 
-sbit ALE = 0xC5;  // 假设ALE连接到P3.6管脚
+sbit ALE = 0xC5;  // ALE连接到P4.5管脚，可以位寻址
+sbit WR = P3 ^ 6; //WR为P3.6管脚
+sbit RD = P3 ^ 7; //RD为P3.7管脚
+
 
 // 检查接口
 sbit CHECK_4 = P1 ^ 4;
@@ -48,6 +51,7 @@ void init_interrupts(void);            // 中断初始化
 void init_AD(void);                    // AD寄存器初始化
 void init_HC595(void);                 // HC595初始化
 void init_ALE();
+void init_WRRD();
 
 void HC595_load(unsigned int dat);     // HC595数据加载到移位寄存器
 void HC595_output(void);               // HC595锁存输出

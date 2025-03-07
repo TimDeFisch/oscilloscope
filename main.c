@@ -15,11 +15,15 @@ void main(void) {
     unsigned char col; // 数码管位选 & 键盘扫描 列数计数
 
     // 初始化代码
-    init_fre_counter0(); // 定时器初始化
+    //init_fre_counter0(); // 定时器初始化
     init_interrupts();   // 中断初始化
+    //暂时性，先屏蔽中断和定时器，首先在原本主循环中尝试实现功能(或许应该改一改，而不是直接屏蔽)
+    //修改了init_interrupts函数，将ET0置0，屏蔽了定时器中断，记得改回来
     init_AD();           // AD寄存器初始化
     init_HC595();        // 74HC595初始化
     init_ALE();          // ALE初始化
+    init_WRRD();         // WR, RD初始化
+
 
     // 主循环
     while (1) {
@@ -96,7 +100,7 @@ void mode_replay(void) {
     // 地址锁存进373
     address_latch();
     // 回放信号读取
-    chip_select(0);
+    chip_select(3);
     digital_read();
     // 回放信号输出到DAC通道1
     digital_output();

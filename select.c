@@ -21,18 +21,20 @@ void chip_select(unsigned char select)
     {
         // P2.6为高电平，P2.5和P2.7为低电平
         P2 = (P2 & 0x1F) | 0x40;  // 设置P2.6为高电平
+    }else if(select ==3){
+        //选择从6264中读取，调整的是RD,选完之后直接返回
+        RD = 0;
+        delay_10us(1);
+        RD = 1;
+        return;
     }
 
     // WR管脚拉低
     WR = 0;
 
-    // 延时至少3ms
+    // 延时10us，实际上500ns就够了
     // 根据单片机晶振频率调整延时
-    {
-        unsigned int i, j;
-        for(i = 0; i < 300; i++)
-            for(j = 0; j < 10; j++);
-    }
+    delay_10us(1);
 
     // WR管脚拉高
     WR = 1;
