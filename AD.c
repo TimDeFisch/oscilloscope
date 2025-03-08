@@ -7,11 +7,10 @@
 unsigned int gen_fre_counter = 0;    // DA波形生成计时器
 
 // // 测量用
-// #define DA_CH1 XBYTE[0x3fff] // CS1，向DA1输出
-// #define DA_CH2 XBYTE[0x5fff] // CS2，向DA2输出
-// #define AD_LEN 250           // 幅值，频率测量时用
-// #define DA_LEN 6000          // 存储DA数据的内存长度
-// 
+ #define DA_CH1 XBYTE[0x3fff] // CS1，向DA1输出
+ #define DA_CH2 XBYTE[0x5fff] // CS2，向DA2输出
+ #define AD_LEN 250           // 幅值，频率测量时用
+ #define DA_LEN 4000          // 存储DA数据的内存长度
 // unsigned int amp_counter = 0; // 幅值计数器
 // unsigned int fre_counter = 0; // 频率计数器
 // unsigned int rising = 0;     // 上升沿标志

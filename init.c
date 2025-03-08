@@ -17,8 +17,8 @@ void init_interrupts(void)
     ES = 1;  // 允许串行中断
     EX0 = 0; // 禁用外部中断INT0
     EX1 = 0; // 禁用外部中断INT1
-    //ET0 = 1; // 允许timer0中断
-    ET0 = 0; // 禁用timer0中断 
+    // ET0 = 1; // 允许timer0中断
+    ET0 = 0; // 禁用timer0中断
     ET1 = 0; // 禁用timer1中断
 }
 
@@ -31,18 +31,9 @@ void init_AD()
     CLK_DIV = 0x01; // 分频：系统时钟/2，此处的目的应该是为了分隔CPU时钟与ADC时钟
 }
 
-void init_ALE(void) {
-    BBh = 0x20;//调整P4SW，将ALE（P4.5）设置为I/O口
-    ALE = 1;//默认ALE为1
-}
-
 // HC595初始化
-void init_HC595(void) {
+void init_HC595(void)
+{
     SCLK = 0;
     RCLK = 0;
-}
-
-void init_WRRD(void) {
-    WR = 1;
-    RD = 1;
 }
