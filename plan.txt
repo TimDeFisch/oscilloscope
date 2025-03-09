@@ -56,3 +56,28 @@
                 【建议】：可以添加一个全局变量Address_Flag，当模式一中的address_offset被置零时，flag置1，意为完成一次波形存储的循环
                 若flag为1，则在模式2中的波形回放时，从1000-1fff循环
                 若flag为0，则在波形回放时，从1000-address_offset之间循环
+        
+        3.9:
+            针对刚刚的建议采取了实际行动的代码
+            分别添加了如下代码，在main.c中加入了全局变量address_flag=0
+                    mode1中
+
+                    if (address_offset >= DA_LEN)
+                    {
+                        address_offset = 0;
+                        address_flag = 1;
+                    }
+
+                    mode2中
+
+                if(address_flag == 1){
+                    if (replay_address_offset >= DA_LEN)
+                    {
+                        replay_address_offset = 0;
+                    }
+                    }else{
+                        if (replay_address_offset >= address_offset)
+                        {
+                            replay_address_offset = 0;
+                        }
+                }

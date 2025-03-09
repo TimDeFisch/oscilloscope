@@ -11,6 +11,7 @@ unsigned char digital_buffer;                                        // 数字�
 unsigned int address_buffer = 0;                                     // 6264读写的当前地址
 unsigned int address_offset = 0;                                     // 6264读写的当前地址偏移量
 unsigned int replay_address_offset = 0; // 6264回放的当前地址偏移量
+unsigned int address_flag = 0;          // 6264完成一次循环存储的标志
 // 主程序
 void main(void)
 {
@@ -86,6 +87,7 @@ void mode_realtime(void)
     if (address_offset >= DA_LEN)
     {
         address_offset = 0;
+        address_flag = 1;
     }
     // 实时信号输出到DAC通道1
     DA_CH1 = digital_buffer;
@@ -104,10 +106,18 @@ void mode_replay(void)
     // 回放信号输出到DAC通道1（还没想好怎么处理地址逻辑，目前想的是【如下代码】，这样比较安全，但是可读长度随机，万一刚读完一个循环就开始回放就gg；或者【从1000+address_offset+1开始】，但循环存储需要区分第一个循环和之后的循环，因为第一个循环address_offset之后的位置还没存东西）
     DA_CH1 = XBYTE[0x1000 + replay_address_offset];
     replay_address_offset++;
-    if (replay_address_offset >= DA_LEN)
-    {
-        replay_address_offset = 0;
+    if(address_flag == 1){
+        if (replay_address_offset >= DA_LEN)
+        {
+            replay_address_offset = 0;
+        }
+    }else{
+        if (replay_address_offset >= address_offset)
+        {
+            replay_address_offset = 0;
+        }
     }
+
 }
 
 // 模式3 测量
