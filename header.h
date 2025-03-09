@@ -32,7 +32,7 @@ extern unsigned char fre_level;       // 频率档位选择，默认为1档，�
 
 extern unsigned char key_dsp_select[MAX_DIGITS]; // 控制数码管位选以及键盘扫描选择
 extern unsigned char display_buffer[MAX_DIGITS]; // 数码管显示缓冲区，默认为0xff，不显示
-extern unsigned char digital_buffer;             // 数字信号缓冲区
+extern unsigned int digital_buffer;             // 数字信号缓冲区
 extern unsigned int address_buffer;              // 6264读写的当前地址
 
 // 引脚定义
@@ -83,7 +83,6 @@ void mode_measure(void);
 void fixed_wave_generate(int mode, int amp, int fre);
 
 float roundf(float x);
-
-void debug(unsigned int a,unsigned int b);
+void debug(unsigned int a,unsigned int b,unsigned int c,unsigned int d);
 unsigned int combine(unsigned char high, unsigned char low);
 void debug_key(unsigned char key_num);

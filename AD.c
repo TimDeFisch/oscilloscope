@@ -34,6 +34,8 @@ void fixed_wave_generate(int mode, int amp, int fre) // mode是波形选择标�
 {
     unsigned char gen_result = 0; // 生成的波形值
 
+    CHECK_5 = !CHECK_5; // P1.5 翻转，便于检测波形生成频率
+
     // 根据频率计算索引
     gen_fre_counter += fre;
     if (gen_fre_counter >= GEN_LEN)

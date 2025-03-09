@@ -2,16 +2,19 @@
 
 unsigned char work_mode = 0x00;       // 模式选择，默认为模式1（实时显示），用0x00表示
 unsigned char fixed_wave_mode = 0x00; // 固定波形选择，默认为正弦波，用0x00表示
-unsigned char amp_level = 0x00;       // 幅度档位选择，默认为1档，用0x00表示
-unsigned char fre_level = 0x00;       // 频率档位选择，默认为1档，用0x00表示
+unsigned char amp_level = 0x01;       // 幅度档位选择，默认为1档，用0x01表示
+unsigned char fre_level = 0x01;       // 频率档位选择，默认为1档，用0x01表示
 
 unsigned char key_dsp_select[MAX_DIGITS] = {0x01, 0x02, 0x04, 0x08}; // 控制数码管位选以及键盘扫描选择
 unsigned char display_buffer[MAX_DIGITS] = {0xff, 0xff, 0xff, 0xff}; // 数码管显示缓冲区，默认为0xff，不显示
-unsigned char digital_buffer;                                        // 数字信号缓冲区
+unsigned int digital_buffer;                                       // 数字信号缓冲区
 unsigned int address_buffer = 0;                                     // 6264读写的当前地址
 unsigned int address_offset = 0;                                     // 6264读写的当前地址偏移量
 unsigned int replay_address_offset = 0; // 6264回放的当前地址偏移量
 unsigned int address_flag = 0;          // 6264完成一次循环存储的标志
+
+unsigned char fre_level_table[4]={1,2,4,8}; // 频率档位表
+unsigned char fre_level_index = 0; // 频率档位索引
 // 主程序
 void main(void)
 {
@@ -32,15 +35,15 @@ void main(void)
         switch (work_mode)
         {
         case 0:
-						debug(1, (unsigned int)fixed_wave_mode);
+			debug(1,(unsigned int)digital_buffer/100,(unsigned int)(digital_buffer/10)%10,(unsigned int)digital_buffer%10);
             mode_realtime(); // 模式1 波形实时显示
             break;
         case 1:
-						debug(2, 10);
+			debug(2, 10,11,11);
             mode_replay(); // 模式2 波形回放显示
             break;
         case 2:
-						debug(3, 10);
+			debug(3, 10,11,11);
             mode_measure(); // 模式3 测量
             break;
         default:
@@ -213,14 +216,14 @@ void key_action(unsigned char row, unsigned char col)
             //debug_key(2);
             break;
         case 2: // 按键S3，增加幅度档位
-            if (amp_level < AMP_NUM - 1)
+            if (0 < amp_level < AMP_NUM )
             {
                 amp_level++;
             }
             //debug_key(3);
             break;
         case 3: // 按键S4，减小幅度档位
-            if (amp_level > 0)
+            if (amp_level > 1)
             {
                 amp_level--;
             }
@@ -236,18 +239,19 @@ void key_action(unsigned char row, unsigned char col)
         switch (col)
         {
         case 0: // 按键S5，增加频率档位
-            if (fre_level < FRE_NUM - 1)
+            if (fre_level_index < FRE_NUM-1)
             {
-                fre_level++;
+                fre_level_index++;
             }
-
+            fre_level = fre_level_table[fre_level_index];
             //debug_key(5);
             break;
         case 1: // 按键S6，减小频率档位
-            if (fre_level > 0)
+            if (fre_level_index >0)
             {
-                fre_level--;
+                fre_level_index--;
             }
+            fre_level = fre_level_table[fre_level_index];
             //debug_key(6);
             break;
         case 2: // 按键S7

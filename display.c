@@ -3,13 +3,15 @@
 
 // 数码管段码表
 static const unsigned char seg_code[] = {
-    0x11, 0x7d, 0x23, 0x29, 0x4d, 0x89, 0x81, 0x3d, 0x01, 0x09, 0xef // 0-9, 负号
+    0x11, 0x7d, 0x23, 0x29, 0x4d, 0x89, 0x81, 0x3d, 0x01, 0x09, 0xef ,0xff,0x00 //0-9 负号 空 满
 };
 
-void debug(unsigned int a,unsigned int b)
+void debug(unsigned int a,unsigned int b,unsigned int c,unsigned int d)
 {
-    display_buffer[3] = seg_code[a];//mode
-	display_buffer[0] = seg_code[b];//档位
+  display_buffer[0] = seg_code[a];
+	display_buffer[1] = seg_code[b];
+	display_buffer[2] = seg_code[c];
+	display_buffer[3] = seg_code[d];
 }
 
 // 显示数字n在第i位数码管上
