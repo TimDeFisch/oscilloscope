@@ -2,6 +2,23 @@
 #include <absacc.h>
 #include <intrins.h>
 
+
+#define GEN_LEN 200          // 生成指定波形的长度
+#define BASE_LINE 100        // 基线
+
+extern unsigned int gen_fre_counter;    // DA波形生成计时器
+
+// // 测量用
+ #define DA_CH1 XBYTE[0x3fff] // CS1，向DA1输出
+ #define DA_CH2 XBYTE[0x5fff] // CS2，向DA2输出
+ #define AD_LEN 250           // 幅值，频率测量时用
+ #define DA_LEN 4000          // 存储DA数据的内存长度
+// unsigned int amp_counter = 0; // 幅值计数器
+// unsigned int fre_counter = 0; // 频率计数器
+// unsigned int rising = 0;     // 上升沿标志
+// unsigned int points = 0;     // 连续符合条件的点数
+// unsigned int amp,amp_measured,amp_max,amp_min; //幅值
+
 #define MODE_NUM 3       // 工作模式数量
 #define FIXED_WAVE_NUM 4 // 固定波形数量
 #define MAX_DIGITS 4     // 最多支持4位数码管
@@ -29,8 +46,6 @@ sbit KEY1 = P3 ^ 4;
 sbit KEY2 = P3 ^ 5;
 
 sbit ALE = 0xC5;  // ALE连接到P4.5管脚，可以位寻址
-sbit WR = P3 ^ 6; // WR为P3.6管脚
-sbit RD = P3 ^ 7; // RD为P3.7管脚
 
 // 检查接口
 sbit CHECK_4 = P1 ^ 4;
@@ -57,7 +72,7 @@ void key_action(unsigned char row, unsigned char col);
 
 void delay_10us(unsigned char n); // 10us延时
 
-void AD_get(); // AD采样
+void AD_get(void); // AD采样
 
 void chip_select(unsigned char select); // 片选修改函数
 
@@ -69,6 +84,6 @@ void fixed_wave_generate(int mode, int amp, int fre);
 
 float roundf(float x);
 
-void debug();
+void debug(unsigned int a,unsigned int b);
 unsigned int combine(unsigned char high, unsigned char low);
 void debug_key(unsigned char key_num);

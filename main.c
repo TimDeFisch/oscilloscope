@@ -31,12 +31,15 @@ void main(void)
         switch (work_mode)
         {
         case 0:
+						debug(1, (unsigned int)fixed_wave_mode);
             mode_realtime(); // 模式1 波形实时显示
             break;
         case 1:
+						debug(2, 10);
             mode_replay(); // 模式2 波形回放显示
             break;
         case 2:
+						debug(3, 10);
             mode_measure(); // 模式3 测量
             break;
         default:
@@ -58,22 +61,7 @@ unsigned int combine(unsigned char a, unsigned char b)
     return (a << 8) | b;
 }
 
-void debug()
-{
-    unsigned char col;
-    // 数码管：1
-    display_buffer[2] = 0x7d;
-    // 数码管显示 & 按键扫描
-    while (1)
-    {
-        for (col = 0; col < MAX_DIGITS; col++)
-        {
-            HC595_load(combine(key_dsp_select[col], display_buffer[col]));
-            HC595_output();
-            key_scan(col);
-        }
-    }
-}
+
 
 // 模式1 波形实时显示
 void mode_realtime(void)
@@ -208,18 +196,18 @@ void key_action(unsigned char row, unsigned char col)
         {
         case 0: // 按键S1，在3个工作模式中循环切换（实时显示、回放显示、测量）
             work_mode = (work_mode + 1) % MODE_NUM;
-            debug_key(1);
+            //debug_key(1);
             break;
         case 1: // 按键S2，切换波形类型（正弦波、三角波、方波、锯齿波）
             fixed_wave_mode = (fixed_wave_mode + 1) % FIXED_WAVE_NUM;
-            debug_key(2);
+            //debug_key(2);
             break;
         case 2: // 按键S3，增加幅度档位
             if (amp_level < AMP_NUM - 1)
             {
                 amp_level++;
             }
-            debug_key(3);
+            //debug_key(3);
             break;
         case 3: // 按键S4，减小幅度档位
             if (amp_level > 0)
@@ -227,7 +215,7 @@ void key_action(unsigned char row, unsigned char col)
                 amp_level--;
             }
 
-            debug_key(4);
+            //debug_key(4);
             break;
         default:
             break;
@@ -243,23 +231,23 @@ void key_action(unsigned char row, unsigned char col)
                 fre_level++;
             }
 
-            debug_key(5);
+            //debug_key(5);
             break;
         case 1: // 按键S6，减小频率档位
             if (fre_level > 0)
             {
                 fre_level--;
             }
-            debug_key(6);
+            //debug_key(6);
             break;
         case 2: // 按键S7
             // 未定义
-            debug_key(7);
+            //debug_key(7);
             break;
         case 3: // 按键S8
             // 未定义
 
-            debug_key(8);
+            //debug_key(8);
             break;
         default:
             break;
