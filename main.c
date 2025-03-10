@@ -217,7 +217,7 @@ void key_action(unsigned char row, unsigned char col)
             //debug_key(2);
             break;
         case 2: // 按键S3，增加幅度档位
-            if (0 < amp_level < AMP_NUM )
+            if (amp_level < AMP_NUM)
             {
                 amp_level++;
             }
@@ -228,7 +228,6 @@ void key_action(unsigned char row, unsigned char col)
             {
                 amp_level--;
             }
-
             //debug_key(4);
             break;
         default:
@@ -261,7 +260,6 @@ void key_action(unsigned char row, unsigned char col)
             break;
         case 3: // 按键S8
             // 未定义
-
             //debug_key(8);
             break;
         default:
