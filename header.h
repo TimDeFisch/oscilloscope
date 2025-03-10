@@ -9,8 +9,8 @@
 extern unsigned int gen_fre_counter;    // DA波形生成计时器
 
 // // 测量用
- #define DA_CH1 XBYTE[0x4000] // CS1，向DA1输出
- #define DA_CH2 XBYTE[0x2000] // CS2，向DA2输出
+ #define DA_CH1 XBYTE[0x5fff] // CS1，向DA1输出
+ #define DA_CH2 XBYTE[0x3fff] // CS2，向DA2输出
  #define AD_LEN 250           // 幅值，频率测量时用
  #define DA_LEN 4000          // 存储DA数据的内存长度
 // unsigned int amp_counter = 0; // 幅值计数器
@@ -32,7 +32,7 @@ extern unsigned char fre_level;       // 频率档位选择，默认为1档，�
 
 extern unsigned char key_dsp_select[MAX_DIGITS]; // 控制数码管位选以及键盘扫描选择
 extern unsigned char display_buffer[MAX_DIGITS]; // 数码管显示缓冲区，默认为0xff，不显示
-extern unsigned char digital_buffer;             // 数字信号缓冲区
+extern unsigned int digital_buffer;             // 数字信号缓冲区
 extern unsigned int address_buffer;              // 6264读写的当前地址
 
 // 引脚定义

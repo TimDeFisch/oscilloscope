@@ -7,7 +7,7 @@ unsigned char fre_level = 0x01;       // 频率档位选择，默认为1档，�
 
 unsigned char key_dsp_select[MAX_DIGITS] = {0x01, 0x02, 0x04, 0x08}; // 控制数码管位选以及键盘扫描选择
 unsigned char display_buffer[MAX_DIGITS] = {0x00, 0x00, 0x00, 0x00}; // 数码管显示缓冲区，默认全显示
-unsigned char digital_buffer;                                       // 数字信号缓冲区
+unsigned int digital_buffer;                                       // 数字信号缓冲区
 unsigned int address_buffer = 0;                                     // 6264读写的当前地址
 unsigned int address_offset = 0;                                     // 6264读写的当前地址偏移量
 unsigned int replay_address_offset = 0; // 6264回放的当前地址偏移量
@@ -73,15 +73,15 @@ void mode_realtime(void)
     // AD转化
     AD_get();
     // 实时信号存储到6264
-    XBYTE[0x0000 + address_offset] = digital_buffer;//保证片选为0的同时，使用余下的12位地址存储信号
+    XBYTE[0x1000 + address_offset] = digital_buffer;//保证片选为0的同时，使用余下的12位地址存储信号
     address_offset++;
     if (address_offset >= DA_LEN)
     {
         address_offset = 0;
         address_flag = 1;
     }
-    // 实时信号输出到DAC通道1【暂时修改用于debug：输出锯齿】!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    DA_CH1 = (unsigned int)address_offset/20;
+    // 实时信号输出到DAC通道1
+    DA_CH1 = digital_buffer;
     // 固定波形输出到DAC通道2
     fixed_wave_generate(fixed_wave_mode, amp_level, fre_level);
     DA_CH2 = digital_buffer;
