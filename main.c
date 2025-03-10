@@ -80,8 +80,11 @@ void mode_realtime(void)
         address_offset = 0;
         address_flag = 1;
     }
+
     // 实时信号输出到DAC通道1
     DA_CH1 = digital_buffer;
+    DA_CH1 = (unsigned int)address_offset/20;
+
     // 固定波形输出到DAC通道2
     fixed_wave_generate(fixed_wave_mode, amp_level, fre_level);
     DA_CH2 = digital_buffer;
