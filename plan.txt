@@ -100,3 +100,8 @@
                             replay_address_offset = 0;
                         }
                 }
+
+
+3.10
+digit_Buffer----》unsigned char
+使用单片机精灵修改了12MHz下10us延时函数，比ai可信

@@ -7,7 +7,7 @@ unsigned char fre_level = 0x01;       // 频率档位选择，默认为1档，�
 
 unsigned char key_dsp_select[MAX_DIGITS] = {0x01, 0x02, 0x04, 0x08}; // 控制数码管位选以及键盘扫描选择
 unsigned char display_buffer[MAX_DIGITS] = {0x00, 0x00, 0x00, 0x00}; // 数码管显示缓冲区，默认全显示
-unsigned int digital_buffer;                                       // 数字信号缓冲区
+unsigned char digital_buffer;                                       // 数字信号缓冲区
 unsigned int address_buffer = 0;                                     // 6264读写的当前地址
 unsigned int address_offset = 0;                                     // 6264读写的当前地址偏移量
 unsigned int replay_address_offset = 0; // 6264回放的当前地址偏移量
@@ -272,8 +272,8 @@ void key_action(unsigned char row, unsigned char col)
 // 10us延时函数
 void delay_10us(unsigned char n)
 {
-    unsigned char i;
-    for (n; n > 0; n--)
-        for (i = 26; i > 0; i--)
-            ;
+    unsigned char a,b;
+    for(b=n;b>0;b--)
+        for(a=2;a>0;a--);
 }
+
