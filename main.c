@@ -81,6 +81,7 @@ void mode_realtime(void)
         address_flag = 1;
     }
     // 实时信号输出到DAC通道1【暂时修改用于debug：输出锯齿】!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // 因为address_offset是一个循环的变量，因此会成为一个锯齿波
     DA_CH1 = (unsigned int)address_offset/20;
     // 固定波形输出到DAC通道2
     fixed_wave_generate(fixed_wave_mode, amp_level, fre_level);
