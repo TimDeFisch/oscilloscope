@@ -27,6 +27,7 @@ void main(void)
     // 修改了init_interrupts函数，将ET0置0，屏蔽了定时器中断，记得改回来
     init_AD();    // AD寄存器初始化
     init_HC595(); // 74HC595初始化
+		
 
     // 主循环
     while (1)
