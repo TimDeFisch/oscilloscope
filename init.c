@@ -28,7 +28,7 @@ void init_AD()
     P1ASF = 0x08; // P1ASF.3=1，P1.3 口作为模拟功能 A/D 使用
     ADC_CONTR = 0xE3;
     AUXR1 &= 0xfb;  // 10 位 A/D 转换结果的高 8 位存放在 ADC_RES 中，低 2 位存放在ADC_RESL 的低 2 位中
-    CLK_DIV = 0x01; // 分频：系统时钟/2，此处的目的应该是为了分隔CPU时钟与ADC时钟
+    CLK_DIV = 0x02;//修改分频为1/4，使得WR正常识别
 }
 
 // HC595初始化
