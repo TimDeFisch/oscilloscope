@@ -1,14 +1,14 @@
 #include "header.h"
 
-//// 定时器初始化
-//void init_fre_counter0(void)
-//{
-//    TMOD &= 0xF0; // 清空原设置
-//    TMOD |= 0x02; // timer0：常开8位自动重载定时器
-//    TL0 = 0x06;   // 计数初值，12MHz——250us——4kHz
-//    TH0 = 0x06;   // 重载值，同计数初值
-//    TR0 = 1;      // 启用timer0
-//}
+// 定时器初始化
+void init_timer0(void)
+{
+   TMOD &= 0xF0; // 清空原设置
+   TMOD |= 0x02; // timer0：常开8位自动重载定时器
+   TL0 = 0x06;   // 计数初值，12MHz——250us——4kHz
+   TH0 = 0x06;   // 重载值，同计数初值
+   TR0 = 1;      // 启用timer0
+}
 
 // 中断初始化
 void init_interrupts(void)
@@ -17,8 +17,8 @@ void init_interrupts(void)
     ES = 1;  // 允许串行中断
     EX0 = 0; // 禁用外部中断INT0
     EX1 = 0; // 禁用外部中断INT1
-    // ET0 = 1; // 允许timer0中断
-    ET0 = 0; // 禁用timer0中断
+    ET0 = 1; // 允许timer0中断
+    // ET0 = 0; // 禁用timer0中断
     ET1 = 0; // 禁用timer1中断
 }
 

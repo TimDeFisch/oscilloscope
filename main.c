@@ -8,49 +8,28 @@ unsigned char fre_level = 0x01;       // 频率档位选择，默认为1档，�
 unsigned char key_dsp_select[MAX_DIGITS] = {0x01, 0x02, 0x04, 0x08}; // 控制数码管位选以及键盘扫描选择
 unsigned char display_buffer[MAX_DIGITS] = {0x00, 0x00, 0x00, 0x00}; // 数码管显示缓冲区，默认全显示
 unsigned char digital_buffer;                                       // 数字信号缓冲区
-unsigned int address_buffer = 0;                                     // 6264读写的当前地址
+// unsigned int address_buffer = 0;                                     // 6264读写的当前地址
 unsigned int address_offset = 0;                                     // 6264读写的当前地址偏移量
 unsigned int replay_address_offset = 0; // 6264回放的当前地址偏移量
 unsigned int address_flag = 0;          // 6264完成一次循环存储的标志
 
 unsigned char fre_level_table[4]={1,2,4,8}; // 频率档位表
 unsigned char fre_level_index = 0; // 频率档位索引
+
 // 主程序
 void main(void)
 {
     unsigned char col; // 数码管位选 & 键盘扫描 列数计数
 
     // 初始化代码
-    // init_fre_counter0(); // 定时器初始化
+    init_timer0(); // 定时器初始化
     init_interrupts(); // 中断初始化
-    // 暂时性，先屏蔽中断和定时器，首先在原本主循环中尝试实现功能(或许应该改一改，而不是直接屏蔽)
-    // 修改了init_interrupts函数，将ET0置0，屏蔽了定时器中断，记得改回来
     init_AD();    // AD寄存器初始化
     init_HC595(); // 74HC595初始化
-		
 
     // 主循环
     while (1)
     {
-        // 模式选择
-        switch (work_mode)
-        {
-        case 0:
-			debug(1,(unsigned int)digital_buffer/100,(unsigned int)(digital_buffer/10)%10,(unsigned int)digital_buffer%10);
-            mode_realtime(); // 模式1 波形实时显示
-            break;
-        case 1:
-			debug(2, 10,11,11);
-            mode_replay(); // 模式2 波形回放显示
-            break;
-        case 2:
-			debug(3, 10,11,11);
-            mode_measure(); // 模式3 测量
-            break;
-        default:
-            break;
-        }
-
         // 数码管显示 & 按键扫描
         for (col = 0; col < MAX_DIGITS; col++)
         {
@@ -61,12 +40,30 @@ void main(void)
     }
 }
 
-unsigned int combine(unsigned char a, unsigned char b)
+// 以固定频率进入timer0中断，在中断中进行工作操作
+void timer0_interrupt(void) interrupt 1
 {
-    return (a << 8) | b;
+    EA = 0; // 暂时禁止全局中断
+    // 模式选择
+    switch (work_mode)
+    {
+    case 0:
+        debug(1, (unsigned int)digital_buffer/100, (unsigned int)(digital_buffer/10)%10, (unsigned int)digital_buffer%10);
+        mode_realtime(); // 模式1 波形实时显示
+        break;
+    case 1:
+        debug(2, 10,11,11);
+        mode_replay(); // 模式2 波形回放显示
+        break;
+    case 2:
+        debug(3, 10,11,11);
+        mode_measure(); // 模式3 测量
+        break;
+    default:
+        break;
+    }
+    EA = 1; // 退出中断前，重新开启全局中断
 }
-
-
 
 // 模式1 波形实时显示
 void mode_realtime(void)
@@ -79,7 +76,7 @@ void mode_realtime(void)
     if (address_offset >= DA_LEN)
     {
         address_offset = 0;
-        address_flag = 1;
+        address_flag = 1; // 标记该变量表示波形已经在6264中存满，方便回放模式中选择读取终点地址
     }
     // 实时信号输出到DAC通道1
     DA_CH1 = digital_buffer;
@@ -116,11 +113,14 @@ void mode_replay(void)
 void mode_measure(void)
 {
     // AD转化
-    // AD_get();
-    // TODO
-    // 信号存储
+    AD_get();
     // 信号特征提取
-    // 数码管数值计算
+}
+
+// 将加载到HC595的高4位和低8位数据结合到一起
+unsigned int combine(unsigned char a, unsigned char b)
+{
+    return (a << 8) | b;
 }
 
 // HC595数据加载到移位寄存器
@@ -201,10 +201,9 @@ void key_scan(unsigned char col)
 }
 
 // 按键动作
-// TODO key1 key2 反了？
 void key_action(unsigned char row, unsigned char col)
 {
-    if (row == 1)
+    if (row == 2)
     {
         switch (col)
         {
@@ -234,7 +233,7 @@ void key_action(unsigned char row, unsigned char col)
             break;
         }
     }
-    if (row == 2)
+    if (row == 1)
     {
         switch (col)
         {
@@ -275,4 +274,3 @@ void delay_10us(unsigned char n)
     for(b=n;b>0;b--)
         for(a=2;a>0;a--);
 }
-
