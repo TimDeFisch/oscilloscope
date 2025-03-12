@@ -2,8 +2,8 @@
 #include <absacc.h>
 #include <intrins.h>
 
-#define DA_CH1 XBYTE[0x3fff] // CS1，向DA1输出
-#define DA_CH2 XBYTE[0x5fff] // CS2，向DA2输出
+#define DA_CH1 XBYTE[0x5fff] // CS1，向DA1输出
+#define DA_CH2 XBYTE[0x3fff] // CS2，向DA2输出
 #define GEN_LEN 200          // 生成指定波形的长度
 #define BASE_LINE 100        // 基线
 #define AD_LEN 250           // 幅值，频率测量时用
