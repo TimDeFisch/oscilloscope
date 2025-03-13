@@ -9,12 +9,12 @@
 #define AD_LEN 250           // 幅值，频率测量时用
 #define DA_LEN 4000          // 存储DA数据的内存长度
 
-// // 测量用
-// unsigned int amp_counter = 0; // 幅值计数器
-// unsigned int fre_counter = 0; // 频率计数器
-// unsigned int rising = 0;     // 上升沿标志
-// unsigned int points = 0;     // 连续符合条件的点数
-// unsigned int amp,amp_measured,amp_max,amp_min; //幅值
+// 测量用
+unsigned int amp_counter = 0; // 幅值计数器
+unsigned int fre_counter = 0; // 频率计数器
+unsigned int rising = 0;     // 上升沿标志
+unsigned int points = 0;     // 连续符合条件的点数
+unsigned char amp,amp_measured,amp_max,amp_min; //幅值
 
 #define MODE_NUM 3       // 工作模式数量
 #define FIXED_WAVE_NUM 4 // 固定波形数量
