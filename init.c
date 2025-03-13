@@ -5,7 +5,7 @@ void init_timer0(void)
 {
    TMOD &= 0xF0; // 清空原设置
    TMOD |= 0x02; // timer0：常开8位自动重载定时器
-   TL0 = 0x06;   // 计数初值，12MHz——250us——4kHz
+   TL0 = 0x06;   // 计数初值，12MHz——250us——4kHz，注意现在分频为1/4，因此定时器每次时间为1ms
    TH0 = 0x06;   // 重载值，同计数初值
    TR0 = 1;      // 启用timer0
 }

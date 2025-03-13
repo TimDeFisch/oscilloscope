@@ -6,7 +6,7 @@
 #define DA_CH2 XBYTE[0x3fff] // CS2，向DA2输出
 #define GEN_LEN 200          // 生成指定波形的长度
 #define BASE_LINE 100        // 基线
-#define AD_LEN 250           // 幅值，频率测量时用
+#define AD_LEN 250           // 幅值，频率测量时用,采样一次用1ms，所以250次采样就是0.25s（因为ppt要求刷新率不低于4Hz）
 #define DA_LEN 4000          // 存储DA数据的内存长度
 
 // 测量用
@@ -14,7 +14,7 @@ unsigned int amp_counter = 0; // 幅值计数器
 unsigned int fre_counter = 0; // 频率计数器
 unsigned int rising = 0;     // 上升沿标志
 unsigned int points = 0;     // 连续符合条件的点数
-unsigned char amp,amp_measured,amp_max,amp_min; //幅值
+unsigned char amp,amp_old,amp_measured,amp_max,amp_min; //幅值
 
 #define MODE_NUM 3       // 工作模式数量
 #define FIXED_WAVE_NUM 4 // 固定波形数量
