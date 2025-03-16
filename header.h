@@ -9,8 +9,8 @@
 #define AD_LEN 250           // 幅值，频率测量时用,采样一次用1ms，所以250次采样就是0.25s（因为ppt要求刷新率不低于4Hz）
 #define DA_LEN 4000          // 存储DA数据的内存长度
 
-
 #define MODE_NUM 3       // 工作模式数量
+#define MEASURE_MODE_NUM 2 // 测量模式数量
 #define FIXED_WAVE_NUM 4 // 固定波形数量
 #define MAX_DIGITS 4     // 最多支持4位数码管
 #define AMP_NUM 4        // 幅度档位数量
@@ -79,6 +79,8 @@ void fixed_wave_generate(int mode, int amp, int fre);
 float roundf(float x);
 void debug(unsigned int a,unsigned int b,unsigned int c,unsigned int d);
 void debug_key(unsigned char key_num);
+void display_amp(unsigned int a,unsigned int b,unsigned int c,unsigned int d);
+void display_fre(unsigned int a,unsigned int b,unsigned int c,unsigned int d);
 
 void measure_wavedata() ;
 

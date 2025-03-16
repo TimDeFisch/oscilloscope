@@ -1,23 +1,20 @@
 #include "header.h"
 
-int n=1527;//测试
-
 unsigned char work_mode = 0x00;       // 模式选择，默认为模式1（实时显示），用0x00表示
+unsigned char measure_mode = 0x00;    // 测量模式选择，默认为幅值测量，用0x00表示
 unsigned char fixed_wave_mode = 0x00; // 固定波形选择，默认为正弦波，用0x00表示
 unsigned char amp_level = 0x01;       // 幅度档位选择，默认为1档，用0x01表示
 unsigned char fre_level = 0x01;       // 频率档位选择，默认为1档，用0x01表示
-unsigned int measure_flag = 0 ; //需要加一个按键选择显示什么参数(fre amp)
 
 unsigned char key_dsp_select[MAX_DIGITS] = {0x01, 0x02, 0x04, 0x08}; // 控制数码管位选以及键盘扫描选择
 unsigned char display_buffer[MAX_DIGITS] = {0x00, 0x00, 0x00, 0x00}; // 数码管显示缓冲区，默认全显示
-unsigned char digital_buffer;                                       // 数字信号缓冲区
-// unsigned int address_buffer = 0;                                     // 6264读写的当前地址
-unsigned int address_offset = 0;                                     // 6264读写的当前地址偏移量
+unsigned char digital_buffer;                                        // 数字信号缓冲区
+unsigned int address_offset = 0;        // 6264读写的当前地址偏移量
 unsigned int replay_address_offset = 0; // 6264回放的当前地址偏移量
 unsigned int address_flag = 0;          // 6264完成一次循环存储的标志
 
-unsigned char fre_level_table[4]={1,2,4,8}; // 频率档位表
-unsigned char fre_level_index = 0; // 频率档位索引
+unsigned char fre_level_table[4] = {1, 2, 4, 8}; // 频率档位表
+unsigned char fre_level_index = 0;               // 频率档位索引
 
 // 主程序
 void main(void)
@@ -25,10 +22,10 @@ void main(void)
     unsigned char col; // 数码管位选 & 键盘扫描 列数计数
 
     // 初始化代码
-    init_timer0(); // 定时器初始化
+    init_timer0();     // 定时器初始化
     init_interrupts(); // 中断初始化
-    init_AD();    // AD寄存器初始化
-    init_HC595(); // 74HC595初始化
+    init_AD();         // AD寄存器初始化
+    init_HC595();      // 74HC595初始化
 
     // 主循环
     while (1)
@@ -51,11 +48,11 @@ void timer0_interrupt(void) interrupt 1
     switch (work_mode)
     {
     case 0:
-        debug(1, (unsigned int)digital_buffer/100, (unsigned int)(digital_buffer/10)%10, (unsigned int)digital_buffer%10);
+        debug(1, (unsigned int)digital_buffer / 100, (unsigned int)(digital_buffer / 10) % 10, (unsigned int)digital_buffer % 10);
         mode_realtime(); // 模式1 波形实时显示
         break;
     case 1:
-        debug(2, 10,11,11);
+        debug(2, 10, 11, 11);
         mode_replay(); // 模式2 波形回放显示
         break;
     case 2:
@@ -73,7 +70,7 @@ void mode_realtime(void)
     // AD转化
     AD_get();
     // 实时信号存储到6264
-		XBYTE[0x1000 + address_offset] = digital_buffer;//保证片选为0的同时，使用余下的12位地址存储信号
+    XBYTE[0x1000 + address_offset] = digital_buffer; // 保证片选为0的同时，使用余下的12位地址存储信号
     address_offset++;
     if (address_offset >= DA_LEN)
     {
@@ -97,33 +94,41 @@ void mode_replay(void)
     // 回放信号输出到DAC通道1（还没想好怎么处理地址逻辑，目前想的是【如下代码】，这样比较安全，但是可读长度随机，万一刚读完一个循环就开始回放就gg；或者【从1000+address_offset+1开始】，但循环存储需要区分第一个循环和之后的循环，因为第一个循环address_offset之后的位置还没存东西）
     DA_CH1 = XBYTE[0x1000 + replay_address_offset];
     replay_address_offset++;
-    if(address_flag == 1){
+    if (address_flag == 1)
+    {
         if (replay_address_offset >= DA_LEN)
         {
             replay_address_offset = 0;
         }
-    }else{
+    }
+    else
+    {
         if (replay_address_offset >= address_offset)
         {
             replay_address_offset = 0;
         }
     }
-
 }
 
 // 模式3 测量
 void mode_measure(void)
 {
+		int n;
     // AD转化
     AD_get();
     // 信号特征提取
     measure_wavedata();
     // 信号特征显示
-    if(measure_flag==0)//需要加一个按键选择显示什么参数
-    {n=(int)amp_measured*1000;}//还没考虑小数点，小数点需要显示在第一位
+    if (measure_mode == 0) // 显示幅值
+    {
+        n = (int)amp_measured * 1000;
+        display_amp((unsigned int)n / 1000, ((unsigned int)n / 100) % 10, (unsigned int)(n / 10) % 10, (unsigned int)n % 10);
+    } // 小数点需要显示在第一位
     else
-    {n=(int)fre_measured*10;}//还没考虑小数点，小数点需要显示在第三位
-    debug((unsigned int)n/1000,((unsigned int)n/100)%10, (unsigned int)(n/10)%10, (unsigned int)n%10);
+    {
+        n = (int)fre_measured * 10;
+        display_fre((unsigned int)n / 1000, ((unsigned int)n / 100) % 10, (unsigned int)(n / 10) % 10, (unsigned int)n % 10);
+    } // 小数点需要显示在第三位
 }
 
 // 将加载到HC595的高4位和低8位数据结合到一起
@@ -218,25 +223,25 @@ void key_action(unsigned char row, unsigned char col)
         {
         case 0: // 按键S1，在3个工作模式中循环切换（实时显示、回放显示、测量）
             work_mode = (work_mode + 1) % MODE_NUM;
-            //debug_key(1);
+            // debug_key(1);
             break;
         case 1: // 按键S2，切换波形类型（正弦波、三角波、方波、锯齿波）
             fixed_wave_mode = (fixed_wave_mode + 1) % FIXED_WAVE_NUM;
-            //debug_key(2);
+            // debug_key(2);
             break;
         case 2: // 按键S3，增加幅度档位
             if (amp_level < AMP_NUM)
             {
                 amp_level++;
             }
-            //debug_key(3);
+            // debug_key(3);
             break;
         case 3: // 按键S4，减小幅度档位
             if (amp_level > 1)
             {
                 amp_level--;
             }
-            //debug_key(4);
+            // debug_key(4);
             break;
         default:
             break;
@@ -247,28 +252,28 @@ void key_action(unsigned char row, unsigned char col)
         switch (col)
         {
         case 0: // 按键S5，增加频率档位
-            if (fre_level_index < FRE_NUM-1)
+            if (fre_level_index < FRE_NUM - 1)
             {
                 fre_level_index++;
             }
             fre_level = fre_level_table[fre_level_index];
-            //debug_key(5);
+            // debug_key(5);
             break;
         case 1: // 按键S6，减小频率档位
-            if (fre_level_index >0)
+            if (fre_level_index > 0)
             {
                 fre_level_index--;
             }
             fre_level = fre_level_table[fre_level_index];
-            //debug_key(6);
+            // debug_key(6);
             break;
         case 2: // 按键S7
-            // 未定义
-            //debug_key(7);
+            measure_mode = (measure_mode + 1) % MEASURE_MODE_NUM;
+            // debug_key(7);
             break;
         case 3: // 按键S8
             // 未定义
-            //debug_key(8);
+            // debug_key(8);
             break;
         default:
             break;
@@ -279,16 +284,18 @@ void key_action(unsigned char row, unsigned char col)
 // 40us延时函数（考虑了分频）
 void delay_10us(unsigned char n)
 {
-    unsigned char a,b;
-    for(b=n;b>0;b--)
-        for(a=2;a>0;a--);
+    unsigned char a, b;
+    for (b = n; b > 0; b--)
+        for (a = 2; a > 0; a--)
+            ;
 }
 
 // 400ms延时函数（考虑了分频）
-void delay_100ms(void)   
+void delay_100ms(void)
 {
-    unsigned char a,b,c;
-    for(c=19;c>0;c--)
-        for(b=20;b>0;b--)
-            for(a=130;a>0;a--);
+    unsigned char a, b, c;
+    for (c = 19; c > 0; c--)
+        for (b = 20; b > 0; b--)
+            for (a = 130; a > 0; a--)
+                ;
 }
