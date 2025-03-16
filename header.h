@@ -5,22 +5,19 @@
 #define DA_CH1 XBYTE[0x5fff] // CS1，向DA1输出
 #define DA_CH2 XBYTE[0x3fff] // CS2，向DA2输出
 #define GEN_LEN 200          // 生成指定波形的长度
-#define BASE_LINE 100        // 基线
+#define BASE_LINE 128        // 基线
 #define AD_LEN 250           // 幅值，频率测量时用,采样一次用1ms，所以250次采样就是0.25s（因为ppt要求刷新率不低于4Hz）
 #define DA_LEN 4000          // 存储DA数据的内存长度
 
-// 测量用
-unsigned int amp_counter = 0; // 幅值计数器
-unsigned int fre_counter = 0; // 频率计数器
-unsigned int rising = 0;     // 上升沿标志
-unsigned int points = 0;     // 连续符合条件的点数
-unsigned char amp,amp_old,amp_measured,amp_max,amp_min; //幅值
 
 #define MODE_NUM 3       // 工作模式数量
 #define FIXED_WAVE_NUM 4 // 固定波形数量
 #define MAX_DIGITS 4     // 最多支持4位数码管
 #define AMP_NUM 4        // 幅度档位数量
 #define FRE_NUM 4        // 频率档位数量
+
+extern float amp_measured; //测量得到的幅值
+extern float fre_measured; //测量得到的频率
 
 extern unsigned char work_mode;       // 模式选择，默认为模式1（实时显示），用0x00表示
 extern unsigned char fixed_wave_mode; // 固定波形选择，默认为正弦波，用0x00表示
@@ -69,7 +66,8 @@ void HC595_output(void);           // HC595锁存输出
 void key_scan(unsigned char i);    // 按键扫描
 void key_action(unsigned char row, unsigned char col);
 
-void delay_10us(unsigned char n); // 10us延时
+void delay_10us(unsigned char n); // 40us延时
+void delay_100ms(void); // 400ms延时
 
 void mode_realtime(void);
 void mode_replay(void);
@@ -81,3 +79,7 @@ void fixed_wave_generate(int mode, int amp, int fre);
 float roundf(float x);
 void debug(unsigned int a,unsigned int b,unsigned int c,unsigned int d);
 void debug_key(unsigned char key_num);
+
+void measure_wavedata() ;
+
+void fdisp_num(int i, int n, int show_dot);

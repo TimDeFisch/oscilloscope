@@ -1,9 +1,12 @@
 #include "header.h"
 
+int n=1527;//测试
+
 unsigned char work_mode = 0x00;       // 模式选择，默认为模式1（实时显示），用0x00表示
 unsigned char fixed_wave_mode = 0x00; // 固定波形选择，默认为正弦波，用0x00表示
 unsigned char amp_level = 0x01;       // 幅度档位选择，默认为1档，用0x01表示
 unsigned char fre_level = 0x01;       // 频率档位选择，默认为1档，用0x01表示
+unsigned int measure_flag = 0 ; //需要加一个按键选择显示什么参数(fre amp)
 
 unsigned char key_dsp_select[MAX_DIGITS] = {0x01, 0x02, 0x04, 0x08}; // 控制数码管位选以及键盘扫描选择
 unsigned char display_buffer[MAX_DIGITS] = {0x00, 0x00, 0x00, 0x00}; // 数码管显示缓冲区，默认全显示
@@ -56,7 +59,6 @@ void timer0_interrupt(void) interrupt 1
         mode_replay(); // 模式2 波形回放显示
         break;
     case 2:
-        debug(3, 10,11,11);
         mode_measure(); // 模式3 测量
         break;
     default:
@@ -71,7 +73,7 @@ void mode_realtime(void)
     // AD转化
     AD_get();
     // 实时信号存储到6264
-    XBYTE[0x1000 + address_offset] = digital_buffer;//保证片选为0的同时，使用余下的12位地址存储信号
+		XBYTE[0x1000 + address_offset] = digital_buffer;//保证片选为0的同时，使用余下的12位地址存储信号
     address_offset++;
     if (address_offset >= DA_LEN)
     {
@@ -115,6 +117,13 @@ void mode_measure(void)
     // AD转化
     AD_get();
     // 信号特征提取
+    measure_wavedata();
+    // 信号特征显示
+    if(measure_flag==0)//需要加一个按键选择显示什么参数
+    {n=(int)amp_measured*1000;}//还没考虑小数点，小数点需要显示在第一位
+    else
+    {n=(int)fre_measured*10;}//还没考虑小数点，小数点需要显示在第三位
+    debug((unsigned int)n/1000,((unsigned int)n/100)%10, (unsigned int)(n/10)%10, (unsigned int)n%10);
 }
 
 // 将加载到HC595的高4位和低8位数据结合到一起
@@ -267,10 +276,19 @@ void key_action(unsigned char row, unsigned char col)
     }
 }
 
-// 10us延时函数
+// 40us延时函数（考虑了分频）
 void delay_10us(unsigned char n)
 {
     unsigned char a,b;
     for(b=n;b>0;b--)
         for(a=2;a>0;a--);
+}
+
+// 400ms延时函数（考虑了分频）
+void delay_100ms(void)   
+{
+    unsigned char a,b,c;
+    for(c=19;c>0;c--)
+        for(b=20;b>0;b--)
+            for(a=130;a>0;a--);
 }
