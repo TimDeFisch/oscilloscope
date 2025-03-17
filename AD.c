@@ -110,7 +110,7 @@ void measure_wavedata()
     }
 
     // 快速跳变直接触发峰值
-    if (slope > SLOPE_THRESHOLD) {
+    if (slope > SLOPE_THRESHOLD) {//阈值需要实际测量时调整
         MAX_Flag = 1;
         max_debounce = 0;
     } else if (slope < -SLOPE_THRESHOLD) {
