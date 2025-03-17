@@ -86,21 +86,27 @@ void fixed_wave_generate(int mode, int amp, int fre) // mode是波形选择标�
 
 void measure_wavedata() 
 {
-        // 去抖和快速跳变混合判断
     static unsigned char max_debounce = 0;
     static unsigned char min_debounce = 0;
-	int slope;
-	
-	amp_counter++; 
+    int slope;
+
+    amp_counter++; 
     fre_counter++; 
-    
+
     amp_old = amp;  // 保存上一次的值
     amp = digital_buffer;   // 获取当前ADC值
 
     slope = amp - amp_old; // 计算瞬时斜率
 
+    // 记录幅度
+    if (amp > amp_max) { 
+        amp_max = amp; 
+    }
+    if (amp < amp_min) { 
+        amp_min = amp; 
+    }
 
-
+    // 去抖和斜率变化判断
     if (slope > 0) {
         max_debounce++;
         min_debounce = 0;
@@ -113,7 +119,7 @@ void measure_wavedata()
     }
 
     // 快速跳变直接触发峰值
-    if (slope > SLOPE_THRESHOLD) {//阈值需要实际测量时调整
+    if (slope > SLOPE_THRESHOLD) {
         MAX_Flag = 1;
         max_debounce = 0;
     } else if (slope < -SLOPE_THRESHOLD) {
@@ -132,10 +138,9 @@ void measure_wavedata()
         }
     }
 
-    // 峰值检测与频率测量
+    // 频率测量
     if (MAX_Flag == 1) {
         if (amp <= amp_old) { 
-            amp_max = amp_old;
             if (fre_flag == 1) { 
                 fre_measured = 1000 / fre_counter; 
                 fre_counter = 0;
@@ -147,23 +152,19 @@ void measure_wavedata()
     }
 
     if (MIN_Flag == 1) {
-        if (amp >= amp_old) { 
-            amp_min = amp_old;
-        }
         MIN_Flag = 0;
     }
 
+    // 每 AD_LEN 采样周期计算幅度
     if (amp_counter >= AD_LEN) 
     {
-        amp_measured = (amp_max - amp_min) * 5 / 256;
-        if(amp_measured < 0){
-            amp_measured = -amp_measured;
-        } 
+        amp_measured = amp_max - amp_min;
         amp_max = 0;
-        amp_min = 256;
+        amp_min = 255;
         amp_counter = 0;
     }
 }
+
 
 // // 同时测量振幅和频率
 // void measure_wavedata() 
