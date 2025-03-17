@@ -182,3 +182,6 @@ measure_mode用于选择显示什么参数（0 amp ， 1 fre）。按键S7决定
             min_debounce = 0;
         }
     }
+
+    3.17
+    搞懂了非常多的东西

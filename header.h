@@ -21,6 +21,7 @@
 
 extern float amp_measured; //测量得到的幅值
 extern float fre_measured; //测量得到的频率
+extern char amp,amp_old,amp_max,amp_min; //幅值
 
 extern unsigned char work_mode;       // 模式选择，默认为模式1（实时显示），用0x00表示
 extern unsigned char fixed_wave_mode; // 固定波形选择，默认为正弦波，用0x00表示

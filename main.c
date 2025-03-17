@@ -128,7 +128,8 @@ void mode_measure(void)
     else
     {
         n = (int)fre_measured * 10;
-        display_fre((unsigned int)n / 1000, ((unsigned int)n / 100) % 10, (unsigned int)(n / 10) % 10, (unsigned int)n % 10);
+        debug(3, (unsigned int)amp_min / 100, (unsigned int)(amp_min / 10) % 10, (unsigned int)amp_min % 10);
+        //display_fre((unsigned int)n / 1000, ((unsigned int)n / 100) % 10, (unsigned int)(n / 10) % 10, (unsigned int)n % 10);
     } // 小数点需要显示在第三位
 }
 
