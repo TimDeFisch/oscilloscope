@@ -83,55 +83,131 @@ void fixed_wave_generate(int mode, int amp, int fre) // mode是波形选择标�
     digital_buffer = gen_result;
 }
 
-// 同时测量振幅和频率
+
 void measure_wavedata() 
 {
-    amp_counter++; // 每次调用时递增计数器
+    amp_counter++; 
     fre_counter++; 
+    
     amp_old = amp;  // 保存上一次的值
-    amp = digital_buffer;   // 获取当前值
+    amp = digital_buffer;   // 获取当前ADC值
 
-    if (amp > amp_old)//若当前值大于上一次的值
-    {
-        MAX_Flag=1;//则之后的采样中会标记最大值，标记最大值的时间点如下
-    }
-    else if  (amp < amp_old)  //若当前值小于上一次的值
-    {
-        MIN_Flag=1;//则之后的采样中会标记最小值，标记最小值的时间点如下
+    int slope = amp - amp_old; // 计算瞬时斜率
+
+    // 去抖和快速跳变混合判断
+    static unsigned char max_debounce = 0;
+    static unsigned char min_debounce = 0;
+
+    if (slope > 0) {
+        max_debounce++;
+        min_debounce = 0;
+    } else if (slope < 0) {
+        min_debounce++;
+        max_debounce = 0;
+    } else {
+        max_debounce = 0;
+        min_debounce = 0;
     }
 
-    if(MAX_Flag==1){
-        if (amp <= amp_old)//当当前值小于等于上一次的值时，说明到达了最大值，立刻记录下来
-        {
-            amp_max = amp_old;
-                if (fre_flag==1)//这里表示两次最大值之间的时间间隔，即一个周期的时间
-                {
-                    fre_measured = 1000 / fre_counter; // 计算频率，AD采样率1kHz
-                    fre_counter = 0;                   // 重置计数器，开始新的周期
-                }else if (fre_flag==0)
-                {
-                    fre_flag=1;
-                }
+    // 快速跳变直接触发峰值
+    if (slope > SLOPE_THRESHOLD) {
+        MAX_Flag = 1;
+        max_debounce = 0;
+    } else if (slope < -SLOPE_THRESHOLD) {
+        MIN_Flag = 1;
+        min_debounce = 0;
+    }
+    // 慢变信号用去抖触发
+    else {
+        if (max_debounce >= DEBOUNCE_CNT) {
+            MAX_Flag = 1;
+            max_debounce = 0;
         }
-        MAX_Flag=0;
+        if (min_debounce >= DEBOUNCE_CNT) {
+            MIN_Flag = 1;
+            min_debounce = 0;
+        }
     }
-    else if(MIN_Flag==1){
-        if (amp >= amp_old)//当当前值大于等于上一次的值时，说明到达了最小值，立刻记录下来
-        {
+
+    // 峰值检测与频率测量
+    if (MAX_Flag == 1) {
+        if (amp <= amp_old) { 
+            amp_max = amp_old;
+            if (fre_flag == 1) { 
+                fre_measured = 1000 / fre_counter; 
+                fre_counter = 0;
+            } else if (fre_flag == 0) {
+                fre_flag = 1; 
+            }
+        }
+        MAX_Flag = 0;
+    }
+
+    if (MIN_Flag == 1) {
+        if (amp >= amp_old) { 
             amp_min = amp_old;
         }
-        MIN_Flag=0;
+        MIN_Flag = 0;
     }
 
-    if (amp_counter >= AD_LEN)//若计数器达到设定的采样点数（这里ADLEN=250，250ms内总结一次最大值和最小值）
+    if (amp_counter >= AD_LEN) 
     {
-        amp_measured = (amp_max - amp_min) * 5 / 256; // 计算振幅，并按比例缩放，单位V
-
-        amp_max = 0;//重置最大最小值
+        amp_measured = (amp_max - amp_min) * 5 / 256; 
+        amp_max = 0;
         amp_min = 256;
         amp_counter = 0;
     }
 }
+
+// // 同时测量振幅和频率
+// void measure_wavedata() 
+// {
+//     amp_counter++; // 每次调用时递增计数器
+//     fre_counter++; 
+//     amp_old = amp;  // 保存上一次的值
+//     amp = digital_buffer;   // 获取当前值
+
+//     if (amp > amp_old)//若当前值大于上一次的值
+//     {
+//         MAX_Flag=1;//则之后的采样中会标记最大值，标记最大值的时间点如下
+//     }
+//     else if  (amp < amp_old)  //若当前值小于上一次的值
+//     {
+//         MIN_Flag=1;//则之后的采样中会标记最小值，标记最小值的时间点如下
+//     }
+
+//     if(MAX_Flag==1){
+//         if (amp <= amp_old)//当当前值小于等于上一次的值时，说明到达了最大值，立刻记录下来
+//         {
+//             amp_max = amp_old;
+//                 if (fre_flag==1)//这里表示两次最大值之间的时间间隔，即一个周期的时间
+//                 {
+//                     fre_measured = 1000 / fre_counter; // 计算频率，AD采样率1kHz
+//                     fre_counter = 0;                   // 重置计数器，开始新的周期
+//                 }else if (fre_flag==0)
+//                 {
+//                     fre_flag=1;
+//                 }
+//         }
+//         MAX_Flag=0;
+//     }
+//     else if(MIN_Flag==1){
+//         if (amp >= amp_old)//当当前值大于等于上一次的值时，说明到达了最小值，立刻记录下来
+//         {
+//             amp_min = amp_old;
+//         }
+//         MIN_Flag=0;
+//     }
+
+//     if (amp_counter >= AD_LEN)//若计数器达到设定的采样点数（这里ADLEN=250，250ms内总结一次最大值和最小值）
+//     {
+//         amp_measured = (amp_max - amp_min) * 5 / 256; // 计算振幅，并按比例缩放，单位V
+
+//         amp_max = 0;//重置最大最小值
+//         amp_min = 256;
+//         amp_counter = 0;
+//     }
+// }
 
 // // 测量频率：利用转折点计算
 // float measure_fre()

@@ -16,6 +16,9 @@
 #define AMP_NUM 4        // 幅度档位数量
 #define FRE_NUM 4        // 频率档位数量
 
+#define DEBOUNCE_CNT 3   // 计数器阈值，用于去抖
+#define SLOPE_THRESHOLD 20 // 根据实际信号幅值范围可调（用于快速跳变检测）
+
 extern float amp_measured; //测量得到的幅值
 extern float fre_measured; //测量得到的频率
 
