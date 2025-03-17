@@ -121,6 +121,7 @@ void mode_measure(void)
     // 信号特征显示
     if (measure_mode == 0) // 显示幅值
     {
+
         n = (int)amp_measured * 1000;
         display_amp((unsigned int)n / 1000, ((unsigned int)n / 100) % 10, (unsigned int)(n / 10) % 10, (unsigned int)n % 10);
     } // 小数点需要显示在第一位

@@ -86,17 +86,20 @@ void fixed_wave_generate(int mode, int amp, int fre) // mode是波形选择标�
 
 void measure_wavedata() 
 {
-    amp_counter++; 
+        // 去抖和快速跳变混合判断
+    static unsigned char max_debounce = 0;
+    static unsigned char min_debounce = 0;
+	int slope;
+	
+	amp_counter++; 
     fre_counter++; 
     
     amp_old = amp;  // 保存上一次的值
     amp = digital_buffer;   // 获取当前ADC值
 
-    int slope = amp - amp_old; // 计算瞬时斜率
+    slope = amp - amp_old; // 计算瞬时斜率
 
-    // 去抖和快速跳变混合判断
-    static unsigned char max_debounce = 0;
-    static unsigned char min_debounce = 0;
+
 
     if (slope > 0) {
         max_debounce++;
@@ -152,7 +155,10 @@ void measure_wavedata()
 
     if (amp_counter >= AD_LEN) 
     {
-        amp_measured = (amp_max - amp_min) * 5 / 256; 
+        amp_measured = (amp_max - amp_min) * 5 / 256;
+        if(amp_measured < 0){
+            amp_measured = -amp_measured;
+        } 
         amp_max = 0;
         amp_min = 256;
         amp_counter = 0;

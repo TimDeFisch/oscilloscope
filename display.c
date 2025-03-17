@@ -16,7 +16,7 @@ void debug(unsigned int a,unsigned int b,unsigned int c,unsigned int d)
 
 void display_amp(unsigned int a,unsigned int b,unsigned int c,unsigned int d)
 {
-  display_buffer[0] = seg_code[a]||0x01;
+  display_buffer[0] = seg_code[a]&0xfe;
 	display_buffer[1] = seg_code[b];
 	display_buffer[2] = seg_code[c];
 	display_buffer[3] = seg_code[d];
@@ -26,7 +26,7 @@ void display_fre(unsigned int a,unsigned int b,unsigned int c,unsigned int d)
 {
   display_buffer[0] = seg_code[a];
 	display_buffer[1] = seg_code[b];
-	display_buffer[2] = seg_code[c]||0x01;
+	display_buffer[2] = seg_code[c]&0xfe;
 	display_buffer[3] = seg_code[d];
 }
 

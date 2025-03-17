@@ -6,7 +6,7 @@
 #define DA_CH2 XBYTE[0x3fff] // CS2，向DA2输出
 #define GEN_LEN 200          // 生成指定波形的长度
 #define BASE_LINE 128        // 基线
-#define AD_LEN 250           // 幅值，频率测量时用,采样一次用1ms，所以250次采样就是0.25s（因为ppt要求刷新率不低于4Hz）
+#define AD_LEN 250         // 幅值，频率测量时用,采样一次用1ms，所以250次采样就是0.25s（因为ppt要求刷新率不低于4Hz）
 #define DA_LEN 4000          // 存储DA数据的内存长度
 
 #define MODE_NUM 3       // 工作模式数量
