@@ -71,7 +71,7 @@ void mode_realtime(void)
     // AD转化
     AD_get();
     // 实时信号存储到6264
-    XBYTE[0x1000 + address_offset] = (digital_buffer >> 1)+0x40; // 保证片选为0的同时，使用余下的12位地址存储信号（注意，存储了1/2）
+    XBYTE[0x0700 + address_offset] = (digital_buffer >> 1)+0x40; // 保证片选为0的同时，使用余下的12位地址存储信号（注意，存储了1/2）
     address_offset++;
     if (address_offset >= DA_LEN)
     {
@@ -92,8 +92,8 @@ void mode_replay(void)
     AD_get();
     // 实时信号输出到DAC通道2
     DA_CH2 = (digital_buffer >> 1)+0x40;
-    // 回放信号输出到DAC通道1（还没想好怎么处理地址逻辑，目前想的是【如下代码】，这样比较安全，但是可读长度随机，万一刚读完一个循环就开始回放就gg；或者【从1000+address_offset+1开始】，但循环存储需要区分第一个循环和之后的循环，因为第一个循环address_offset之后的位置还没存东西）
-    DA_CH1 = XBYTE[0x1000 + replay_address_offset];
+    // 从6264中读取信号
+    DA_CH1 = XBYTE[0x0700 + replay_address_offset];
     replay_address_offset++;
     if (address_flag == 1)
     {
@@ -114,7 +114,7 @@ void mode_replay(void)
 // 模式3 测量
 void mode_measure(void)
 {
-		int n;
+	int n;
     // AD转化
     AD_get();
     // 信号特征提取
@@ -122,7 +122,7 @@ void mode_measure(void)
     // 信号特征显示
     if (measure_mode == 0) // 显示幅值
     {
-        n = ((int)amp_measured - 128) * 39;//计算振幅，按比例缩放，单位V，但是利用了5/256约等于0.02，于是集合在main显示部分1000*0。02=20
+        n = ((int)amp_measured ) * 20;//计算振幅，按比例缩放，单位V，但是利用了5/256约等于0.02，于是集合在main显示部分1000*0。02=20
         display_amp((unsigned int)n / 1000, ((unsigned int)n / 100) % 10, (unsigned int)(n / 10) % 10, (unsigned int)n % 10);
     } // 小数点需要显示在第一位
     else
