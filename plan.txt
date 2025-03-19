@@ -138,50 +138,7 @@ measure_mode用于选择显示什么参数（0 amp ， 1 fre）。按键S7决定
 
 ！！！未进行输入波形测量测试，实验器材过于局限，建议在实验室进行！！！
 
-3.17
-修改了部分测量函数，仍使用连续上升/下降的方式来去除噪声/抖动，但是允许瞬时变化波形（方波）被检测。原理是若前后差值大于一定阈值，则直接认为达到尖峰，代码如下
-    amp_counter++; 
-    fre_counter++; 
-    
-    amp_old = amp;  // 保存上一次的值
-    amp = digital_buffer;   // 获取当前ADC值
 
-    int slope = amp - amp_old; // 计算瞬时斜率
-
-    // 去抖和快速跳变混合判断
-    static unsigned char max_debounce = 0;
-    static unsigned char min_debounce = 0;
-
-    if (slope > 0) {
-        max_debounce++;
-        min_debounce = 0;
-    } else if (slope < 0) {
-        min_debounce++;
-        max_debounce = 0;
-    } else {
-        max_debounce = 0;
-        min_debounce = 0;
-    }
-
-    // 快速跳变直接触发峰值
-    if (slope > SLOPE_THRESHOLD) {
-        MAX_Flag = 1;
-        max_debounce = 0;
-    } else if (slope < -SLOPE_THRESHOLD) {
-        MIN_Flag = 1;
-        min_debounce = 0;
-    }
-    // 慢变信号用去抖触发
-    else {
-        if (max_debounce >= DEBOUNCE_CNT) {
-            MAX_Flag = 1;
-            max_debounce = 0;
-        }
-        if (min_debounce >= DEBOUNCE_CNT) {
-            MIN_Flag = 1;
-            min_debounce = 0;
-        }
-    }
-
-    3.17
-    搞懂了非常多的东西
+3.19
+存储值修改为1/2，用于配合记忆波形输出
+判定点修改为过零检测
