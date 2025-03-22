@@ -6,6 +6,7 @@
 #define DA_CH2 XBYTE[0x3fff] // CS2，向DA2输出001
 #define GEN_LEN 400          // 生成指定波形的长度
 #define BASE_LINE 128        // 基线
+#define AMPLITUDE 48     // 振幅
 #define AD_LEN 250           // 幅值，频率测量时用,采样一次用1ms，所以250次采样就是0.25s（因为ppt要求刷新率不低于4Hz）
 #define DA_LEN 6000          // 存储DA数据的内存长度
 
@@ -43,9 +44,9 @@ sbit KEY2 = P3 ^ 5;
 // sbit ALE = 0xC5;  // ALE连接到P4.5管脚，可以位寻址
 
 // 检查接口
-sbit CHECK_4 = P1 ^ 4;
-sbit CHECK_5 = P1 ^ 5;
-sbit CHECK_6 = P1 ^ 6;
+sbit CHECK_4 = P1 ^ 4;  //AD采样
+sbit CHECK_5 = P1 ^ 5;  //波形生成
+sbit CHECK_6 = P1 ^ 6;  //数码管显示
 sbit CHECK_7 = P1 ^ 7;
 
 // AD寄存器地址

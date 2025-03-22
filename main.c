@@ -5,13 +5,15 @@ unsigned char measure_mode = 0x00;    // 测量模式选择，默认为幅值测
 unsigned char fixed_wave_mode = 0x00; // 固定波形选择，默认为正弦波，用0x00表示
 unsigned char amp_level = 0x01;       // 幅度档位选择，默认为1档，用0x01表示
 unsigned char fre_level = 0x01;       // 频率档位选择，默认为1档，用0x01表示
-
+int n = 0;                          // 实时测得值
+int n_old = 0;                      // 上一次测得值
+int a = 0, b = 0, c = 0, d = 0;     // 数码管显示的四位数
 unsigned char key_dsp_select[MAX_DIGITS] = {0x01, 0x02, 0x04, 0x08}; // 控制数码管位选以及键盘扫描选择
 unsigned char display_buffer[MAX_DIGITS] = {0x00, 0x00, 0x00, 0x00}; // 数码管显示缓冲区，默认全显示
 unsigned char digital_buffer;                                        // 数字信号缓冲区
-unsigned int address_offset = 0;        // 6264读写的当前地址偏移量
-unsigned int replay_address_offset = 0; // 6264回放的当前地址偏移量
-unsigned int address_flag = 0;          // 6264完成一次循环存储的标志
+unsigned int address_offset = 0;                                     // 6264读写的当前地址偏移量
+unsigned int replay_address_offset = 0;                              // 6264回放的当前地址偏移量
+unsigned int address_flag = 0;                                       // 6264完成一次循环存储的标志
 
 unsigned char fre_level_table[4] = {1, 2, 4, 8}; // 频率档位表
 unsigned char fre_level_index = 0;               // 频率档位索引
@@ -71,7 +73,7 @@ void mode_realtime(void)
     // AD转化
     AD_get();
     // 实时信号存储到6264
-    XBYTE[0x0700 + address_offset] = (digital_buffer >> 1)+0x40; // 保证片选为0的同时，使用余下的12位地址存储信号（注意，存储了1/2）
+    XBYTE[0x0700 + address_offset] = (digital_buffer >> 1) + 0x40; // 保证片选为0的同时，使用余下的12位地址存储信号（注意，存储了1/2）
     address_offset++;
     if (address_offset >= DA_LEN)
     {
@@ -79,7 +81,7 @@ void mode_realtime(void)
         address_flag = 1; // 标记该变量表示波形已经在6264中存满，方便回放模式中选择读取终点地址
     }
     // 实时信号输出到DAC通道1
-    DA_CH1 = (digital_buffer >> 1)+0x40;
+    DA_CH1 = (digital_buffer >> 1) + 0x40;
     // 固定波形输出到DAC通道2
     fixed_wave_generate(fixed_wave_mode, amp_level, fre_level);
     DA_CH2 = digital_buffer;
@@ -91,7 +93,7 @@ void mode_replay(void)
     // AD转化
     AD_get();
     // 实时信号输出到DAC通道2
-    DA_CH2 = (digital_buffer >> 1)+0x40;
+    DA_CH2 = (digital_buffer >> 1) + 0x40;
     // 从6264中读取信号
     DA_CH1 = XBYTE[0x0700 + replay_address_offset];
     replay_address_offset++;
@@ -114,21 +116,37 @@ void mode_replay(void)
 // 模式3 测量
 void mode_measure(void)
 {
-	int n;
     // AD转化
     AD_get();
     // 信号特征提取
     measure_wavedata();
+
     // 信号特征显示
     if (measure_mode == 0) // 显示幅值
     {
-        n = ((int)amp_measured ) * 20;//计算振幅，按比例缩放，单位V，但是利用了5/256约等于0.02，于是集合在main显示部分1000*0。02=20
-        display_amp((unsigned int)n / 1000, ((unsigned int)n / 100) % 10, (unsigned int)(n / 10) % 10, (unsigned int)n % 10);
+        n = amp_measured * 20; // 计算振幅，按比例缩放，单位V，但是利用了5/256约等于0.02，于是集合在main显示部分1000*0。02=20
+        if (n != n_old)
+        {
+            n_old = n;
+            a = n / 1000;
+            b = (n / 100) % 10;
+            c = (n / 10) % 10;
+            d = n % 10;
+        }
+        display_amp(a, b, c, d);
     } // 小数点需要显示在第一位
     else
     {
-        n = (int)fre_measured * 10;
-        display_fre((unsigned int)n / 1000, ((unsigned int)n / 100) % 10, (unsigned int)(n / 10) % 10, (unsigned int)n % 10);
+        n = fre_measured * 10;
+        if (n != n_old)
+        {
+            n_old = n;
+            a = n / 1000;
+            b = (n / 100) % 10;
+            c = (n / 10) % 10;
+            d = n % 10;
+        }
+        display_fre(a, b, c, d);
     } // 小数点需要显示在第三位
 }
 
