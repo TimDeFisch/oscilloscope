@@ -57,6 +57,7 @@ sfr ADC_RES = 0xBD;   // A/D 转换结果寄存器
 sfr CLK_DIV = 0x97;   // 时钟分频寄存器
 
 void init_timer0(void); // 定时器初始化
+void init_timer1(void); // 定时器1初始化
 void init_interrupts(void);   // 中断初始化
 void init_AD(void);           // AD寄存器初始化
 void init_HC595(void);        // HC595初始化
