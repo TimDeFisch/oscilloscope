@@ -17,6 +17,7 @@ unsigned int address_flag = 0;                                       // 6264完�
 
 unsigned char fre_level_table[4] = {1, 2, 4, 8}; // 频率档位表
 unsigned char fre_level_index = 0;               // 频率档位索引
+unsigned char AD_Flag = 0;                       // AD采样标志，为1时表示完成了一次AD采样，主循环中可以进行处理；为0时表示未完成AD采样
 
 // 主程序
 void main(void)
@@ -32,6 +33,27 @@ void main(void)
     // 主循环
     while (1)
     {
+        if (AD_Flag == 1)
+        {
+            switch (work_mode)
+            {
+            case 0:
+                debug(1, (unsigned int)digital_buffer / 100, (unsigned int)(digital_buffer / 10) % 10, (unsigned int)digital_buffer % 10);//这个Debug最后要删掉
+                mode_realtime(); // 模式1 波形实时显示
+                break;
+            case 1:
+                debug(2, 10, 11, 11);
+                mode_replay(); // 模式2 波形回放显示
+                break;
+            case 2:
+                mode_measure(); // 模式3 测量
+                break;
+            default:
+                break;
+            }
+            AD_Flag = 0; // 复位标志
+        }
+      
         // 数码管显示 & 按键扫描
         for (col = 0; col < MAX_DIGITS; col++)
         {
@@ -48,22 +70,9 @@ void timer0_interrupt(void) interrupt 1
 {
     EA = 0; // 暂时禁止全局中断
     // 模式选择
-    switch (work_mode)
-    {
-    case 0:
-        debug(1, (unsigned int)digital_buffer / 100, (unsigned int)(digital_buffer / 10) % 10, (unsigned int)digital_buffer % 10);
-        mode_realtime(); // 模式1 波形实时显示
-        break;
-    case 1:
-        debug(2, 10, 11, 11);
-        mode_replay(); // 模式2 波形回放显示
-        break;
-    case 2:
-        mode_measure(); // 模式3 测量
-        break;
-    default:
-        break;
-    }
+    AD_get(); // AD采样
+    AD_Flag = 1; // 完成一次AD采样
+
     EA = 1; // 退出中断前，重新开启全局中断
 }
 
@@ -71,7 +80,7 @@ void timer0_interrupt(void) interrupt 1
 void mode_realtime(void)
 {
     // AD转化
-    AD_get();
+    //AD_get();
     // 实时信号存储到6264
     XBYTE[0x0700 + address_offset] = (digital_buffer >> 1) + 0x40; // 保证片选为0的同时，使用余下的12位地址存储信号（注意，存储了1/2）
     address_offset++;
@@ -91,7 +100,7 @@ void mode_realtime(void)
 void mode_replay(void)
 {
     // AD转化
-    AD_get();
+    // AD_get();
     // 实时信号输出到DAC通道2
     DA_CH2 = (digital_buffer >> 1) + 0x40;
     // 从6264中读取信号
@@ -117,7 +126,7 @@ void mode_replay(void)
 void mode_measure(void)
 {
     // AD转化
-    AD_get();
+    // AD_get();
     // 信号特征提取
     measure_wavedata();
 
