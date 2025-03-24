@@ -18,7 +18,7 @@ unsigned int address_flag = 0;                                       // 6264完�
 unsigned char fre_level_table[4] = {1, 2, 4, 8}; // 频率档位表
 unsigned char fre_level_index = 0;               // 频率档位索引
 unsigned char AD_Flag = 0;                       // AD采样标志，为1时表示完成了一次AD采样，主循环中可以进行处理；为0时表示未完成AD采样
-extern unsigned char fre_counter;                // 频率计数器
+extern unsigned int fre_counter;                // 频率计数器
 // 主程序
 void main(void)
 {
@@ -52,10 +52,7 @@ void main(void)
             default:
                 break;
             }
-            AD_Flag = 0; // 复位标志
-        }
-      
-        // 数码管显示 & 按键扫描
+                    // 数码管显示 & 按键扫描
         for (col = 0; col < MAX_DIGITS; col++)
         {
             CHECK_6 = !CHECK_6; // P1.6 翻转，便于检测显示频率
@@ -63,6 +60,10 @@ void main(void)
             HC595_output();
             key_scan(col);
         }
+            AD_Flag = 0; // 复位标志
+        }
+      
+
     }
 }
 // 进入timer1中断表示过了250ms，频率计数器增加1
