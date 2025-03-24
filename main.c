@@ -128,7 +128,9 @@ void mode_measure(void)
         if (n != n_old)
         {
             n_old = n;
-            n = (n - 100)*0.93;
+            if(n<2400){
+                n = (n - 100)*0.93;
+            }
             a = n / 1000;
             b = (n / 100) % 10;
             c = (n / 10) % 10;

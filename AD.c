@@ -22,7 +22,7 @@ void AD_get()
     CHECK_4 = !CHECK_4; // P1.4 翻转，便于检测采样频率
 
     ADC_RES = 0;       // 清空寄存器
-    ADC_CONTR |= 0x08; // 置位ADC_START ：启动 AD 转换
+    ADC_CONTR = 0xEB; // 置位ADC_START ：启动 AD 转换
 
     for (i = 0; i < 4; i++)
         _nop_(); // 对 ADC_CONTR 寄存器进行写操作后,要加 4 个空操作延时,才能够正确读到ADC_CONTR 的值
@@ -30,7 +30,7 @@ void AD_get()
     while (ADC_CONTR & 0x10 == 0)
         ; // 等待ADC_FLAG：等待AD 转换完成
 
-    ADC_CONTR &= 0xE7;        // 清除ADC_FLAG, ADC_START ：停止 A/D 转换
+    ADC_CONTR = 0xE3;        // 清除ADC_FLAG, ADC_START ：停止 A/D 转换
     digital_buffer = ADC_RES; // 记录采样值
 }
 
