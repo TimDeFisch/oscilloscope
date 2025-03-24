@@ -17,42 +17,22 @@ unsigned int address_flag = 0;                                       // 6264完�
 
 unsigned char fre_level_table[4] = {1, 2, 4, 8}; // 频率档位表
 unsigned char fre_level_index = 0;               // 频率档位索引
-unsigned char AD_Flag = 0;                       // AD采样标志，为1时表示完成了一次AD采样，主循环中可以进行处理；为0时表示未完成AD采样
-extern unsigned int fre_counter;                // 频率计数器
+
 // 主程序
 void main(void)
 {
     unsigned char col; // 数码管位选 & 键盘扫描 列数计数
 
     // 初始化代码
-    init_interrupts(); // 中断初始化
     init_timer0();     // 定时器初始化
-    init_timer1();     // 定时器1初始化
+    init_interrupts(); // 中断初始化
     init_AD();         // AD寄存器初始化
     init_HC595();      // 74HC595初始化
 
     // 主循环
     while (1)
     {
-        if (AD_Flag == 1)
-        {
-            switch (work_mode)
-            {
-            case 0:
-                debug(1, (unsigned int)digital_buffer / 100, (unsigned int)(digital_buffer / 10) % 10, (unsigned int)digital_buffer % 10);//这个Debug最后要删掉
-                mode_realtime(); // 模式1 波形实时显示
-                break;
-            case 1:
-                debug(2, 10, 11, 11);
-                mode_replay(); // 模式2 波形回放显示
-                break;
-            case 2:
-                mode_measure(); // 模式3 测量
-                break;
-            default:
-                break;
-            }
-                    // 数码管显示 & 按键扫描
+        // 数码管显示 & 按键扫描
         for (col = 0; col < MAX_DIGITS; col++)
         {
             CHECK_6 = !CHECK_6; // P1.6 翻转，便于检测显示频率
@@ -60,25 +40,7 @@ void main(void)
             HC595_output();
             key_scan(col);
         }
-            AD_Flag = 0; // 复位标志
-        }
-      
-
     }
-}
-// 进入timer1中断表示过了250ms，频率计数器增加1
-void timer1_interrupt(void) interrupt 3
-{
-    EA = 0; // 禁止全局中断
-
-    // 恢复定时器重载值
-    TL1 = 0xdc;  // 定时器初值
-    TH1 = 0x0b;  // 定时器重载值
-    
-    // 频率计数器增加1
-    fre_counter++;
-
-    EA = 1; // 重新开启全局中断
 }
 
 // 以固定频率进入timer0中断，在中断中进行工作操作
@@ -86,9 +48,22 @@ void timer0_interrupt(void) interrupt 1
 {
     EA = 0; // 暂时禁止全局中断
     // 模式选择
-    AD_get(); // AD采样
-    AD_Flag = 1; // 完成一次AD采样
-
+    switch (work_mode)
+    {
+    case 0:
+        debug(1, (unsigned int)digital_buffer / 100, (unsigned int)(digital_buffer / 10) % 10, (unsigned int)digital_buffer % 10);
+        mode_realtime(); // 模式1 波形实时显示
+        break;
+    case 1:
+        debug(2, 10, 11, 11);
+        mode_replay(); // 模式2 波形回放显示
+        break;
+    case 2:
+        mode_measure(); // 模式3 测量
+        break;
+    default:
+        break;
+    }
     EA = 1; // 退出中断前，重新开启全局中断
 }
 
@@ -96,7 +71,7 @@ void timer0_interrupt(void) interrupt 1
 void mode_realtime(void)
 {
     // AD转化
-    //AD_get();
+    AD_get();
     // 实时信号存储到6264
     XBYTE[0x0700 + address_offset] = (digital_buffer >> 1) + 0x40; // 保证片选为0的同时，使用余下的12位地址存储信号（注意，存储了1/2）
     address_offset++;
@@ -116,7 +91,7 @@ void mode_realtime(void)
 void mode_replay(void)
 {
     // AD转化
-    // AD_get();
+    AD_get();
     // 实时信号输出到DAC通道2
     DA_CH2 = (digital_buffer >> 1) + 0x40;
     // 从6264中读取信号
@@ -142,7 +117,7 @@ void mode_replay(void)
 void mode_measure(void)
 {
     // AD转化
-    // AD_get();
+    AD_get();
     // 信号特征提取
     measure_wavedata();
 
