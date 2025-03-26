@@ -1,22 +1,21 @@
 #include "header.h"
 
-unsigned char work_mode = 0x00;       // 模式选择，默认为模式1（实时显示），用0x00表示
-unsigned char measure_mode = 0x00;    // 测量模式选择，默认为幅值测量，用0x00表示
-unsigned char fixed_wave_mode = 0x00; // 固定波形选择，默认为正弦波，用0x00表示
-unsigned char amp_level = 0x01;       // 幅度档位选择，默认为1档，用0x01表示
-unsigned char fre_level = 0x01;       // 频率档位选择，默认为1档，用0x01表示
-int n = 0;                          // 实时测得值
-int n_old = 0;                      // 上一次测得值
-int a = 0, b = 0, c = 0, d = 0;     // 数码管显示的四位数
+unsigned char work_mode = 0x00;                                      // 模式选择，默认为模式1（实时显示），用0x00表示
+unsigned char measure_mode = 0x00;                                   // 测量模式选择，默认为幅值测量，用0x00表示
+unsigned char fixed_wave_mode = 0x00;                                // 固定波形选择，默认为正弦波，用0x00表示
+unsigned char amp_level = 0x01;                                      // 幅度档位选择，默认为1档，用0x01表示
+unsigned char fre_level = 0x01;                                      // 频率档位选择，默认为1档，用0x01表示
+int n = 0;                                                           // 实时测得值
+int n_old = 0;                                                       // 上一次测得值
+int a = 0, b = 0, c = 0, d = 0;                                      // 数码管显示的四位数
 unsigned char key_dsp_select[MAX_DIGITS] = {0x01, 0x02, 0x04, 0x08}; // 控制数码管位选以及键盘扫描选择
 unsigned char display_buffer[MAX_DIGITS] = {0x00, 0x00, 0x00, 0x00}; // 数码管显示缓冲区，默认全显示
 unsigned char digital_buffer;                                        // 数字信号缓冲区
 unsigned int address_offset = 0;                                     // 6264读写的当前地址偏移量
 unsigned int replay_address_offset = 0;                              // 6264回放的当前地址偏移量
 unsigned int address_flag = 0;                                       // 6264完成一次循环存储的标志
-
-unsigned char fre_level_table[4] = {1, 2, 4, 8}; // 频率档位表
-unsigned char fre_level_index = 0;               // 频率档位索引
+unsigned char fre_level_table[4] = {1, 2, 4, 8};                     // 频率档位表
+unsigned char fre_level_index = 0;                                   // 频率档位索引
 
 // 主程序
 void main(void)
@@ -46,7 +45,7 @@ void main(void)
 // 以固定频率进入timer0中断，在中断中进行工作操作
 void timer0_interrupt(void) interrupt 1
 {
-    EA = 0; // 暂时禁止全局中断
+    EA = 0;             // 暂时禁止全局中断
     CHECK_7 = !CHECK_7; // P1.7 翻转，显示定时器中断情况
     // 模式选择
     switch (work_mode)
@@ -119,16 +118,18 @@ void mode_measure(void)
 {
     // AD转化
     AD_get();
+
     // 信号特征提取
     measure_wavedata();
 
     // 信号特征显示
     if (measure_mode == 0) // 显示幅值
     {
-        n = (amp_measured+0.01) *19; // 计算振幅，按比例缩放，单位V，但是利用了5/256约等于0.02，于是集合在main显示部分1000*0。02=20
+        n = (amp_measured + 0.01) * 19; // 计算振幅，按比例缩放，单位V
+        // 利用了5/256约等于0.02，于是集合在main显示部分1000*0。02=20，再拟合修正
         if (n != n_old)
         {
-            n_old = n;
+            n_old = n; // 保证数码管显示的值不变时不刷新，减少无谓的耗时
             a = n / 1000;
             b = (n / 100) % 10;
             c = (n / 10) % 10;
@@ -164,7 +165,7 @@ void HC595_load(unsigned int dat)
     for (i = 0; i < 12; i++)
     {
         if (dat & 0x0800)
-        { // TODO 4个LED灯怎么操控？
+        {
             SDAT = 1;
         }
         else
@@ -243,25 +244,25 @@ void key_action(unsigned char row, unsigned char col)
         {
         case 0: // 按键S1，在3个工作模式中循环切换（实时显示、回放显示、测量）
             work_mode = (work_mode + 1) % MODE_NUM;
-            // debug_key(1);
+
             break;
         case 1: // 按键S2，切换波形类型（正弦波、三角波、方波、锯齿波）
             fixed_wave_mode = (fixed_wave_mode + 1) % FIXED_WAVE_NUM;
-            // debug_key(2);
+
             break;
         case 2: // 按键S3，增加幅度档位
             if (amp_level < AMP_NUM)
             {
                 amp_level++;
             }
-            // debug_key(3);
+
             break;
         case 3: // 按键S4，减小幅度档位
             if (amp_level > 1)
             {
                 amp_level--;
             }
-            // debug_key(4);
+
             break;
         default:
             break;
@@ -277,7 +278,7 @@ void key_action(unsigned char row, unsigned char col)
                 fre_level_index++;
             }
             fre_level = fre_level_table[fre_level_index];
-            // debug_key(5);
+
             break;
         case 1: // 按键S6，减小频率档位
             if (fre_level_index > 0)
@@ -285,15 +286,15 @@ void key_action(unsigned char row, unsigned char col)
                 fre_level_index--;
             }
             fre_level = fre_level_table[fre_level_index];
-            // debug_key(6);
+
             break;
         case 2: // 按键S7
             measure_mode = (measure_mode + 1) % MEASURE_MODE_NUM;
-            // debug_key(7);
+
             break;
         case 3: // 按键S8
             // 未定义
-            // debug_key(8);
+
             break;
         default:
             break;
@@ -308,14 +309,4 @@ void delay_10us(unsigned char n)
     for (b = n; b > 0; b--)
         for (a = 2; a > 0; a--)
             ;
-}
-
-// 400ms延时函数（考虑了分频）
-void delay_100ms(void)
-{
-    unsigned char a, b, c;
-    for (c = 19; c > 0; c--)
-        for (b = 20; b > 0; b--)
-            for (a = 130; a > 0; a--)
-                ;
 }
