@@ -47,6 +47,7 @@ void main(void)
 void timer0_interrupt(void) interrupt 1
 {
     EA = 0; // 暂时禁止全局中断
+    CHECK_7 = !CHECK_7; // P1.7 翻转，显示定时器中断情况
     // 模式选择
     switch (work_mode)
     {
@@ -124,13 +125,10 @@ void mode_measure(void)
     // 信号特征显示
     if (measure_mode == 0) // 显示幅值
     {
-        n = amp_measured * 20; // 计算振幅，按比例缩放，单位V，但是利用了5/256约等于0.02，于是集合在main显示部分1000*0。02=20
+        n = (amp_measured+0.01) *19; // 计算振幅，按比例缩放，单位V，但是利用了5/256约等于0.02，于是集合在main显示部分1000*0。02=20
         if (n != n_old)
         {
             n_old = n;
-            if(n<2400){
-                n = (n - 100)*0.93;
-            }
             a = n / 1000;
             b = (n / 100) % 10;
             c = (n / 10) % 10;

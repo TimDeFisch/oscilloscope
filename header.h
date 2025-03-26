@@ -45,9 +45,9 @@ sbit KEY2 = P3 ^ 5;
 
 // 检查接口
 sbit CHECK_4 = P1 ^ 4;  //AD采样
-sbit CHECK_5 = P1 ^ 5;  //波形生成
+sbit CHECK_5 = P1 ^ 5;  //固定波形生成
 sbit CHECK_6 = P1 ^ 6;  //数码管显示
-sbit CHECK_7 = P1 ^ 7;
+sbit CHECK_7 = P1 ^ 7;  //定时器中断
 
 // AD寄存器地址
 sfr P1ASF = 0x9D;     // P1 Analog Special Function

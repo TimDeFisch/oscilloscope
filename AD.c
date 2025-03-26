@@ -100,7 +100,7 @@ void measure_wavedata()
     {
         if (fre_flag) // 已经检测到过一次零点，计算周期
         {
-            fre_measured = 1000 / fre_counter; // 计算频率，AD采样率1kHz
+            fre_measured = 1000.0 / fre_counter; // 计算频率，AD采样率1kHz
             fre_counter = 0; // 复位计数器
             fre_flag = 0; // 复位标志
         }
