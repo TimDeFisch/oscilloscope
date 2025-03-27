@@ -4,16 +4,16 @@
 
 #define DA_CH1 XBYTE[0x5fff] // CS1，向DA1输出011
 #define DA_CH2 XBYTE[0x3fff] // CS2，向DA2输出001
-#define GEN_LEN 400          // 生成指定波形的长度
+#define GEN_LEN 400          // 波形表长度
 #define BASE_LINE 128        // 基线
 #define AMPLITUDE 48         // 振幅
-#define AD_LEN 250           // 幅值，频率测量时用,采样一次用1ms，所以250次采样就是0.25s（因为ppt要求刷新率不低于4Hz）
+#define AD_LEN 250           // 幅值，频率测量时用，采样1ms/次，整个周期250ms——更新频率4Hz
 #define DA_LEN 6000          // 存储DA数据的内存长度
 
 #define MODE_NUM 3         // 工作模式数量
 #define MEASURE_MODE_NUM 2 // 测量模式数量
 #define FIXED_WAVE_NUM 4   // 固定波形数量
-#define MAX_DIGITS 4       // 最多支持4位数码管
+#define MAX_DIGITS 4       // 数码管数量
 #define AMP_NUM 4          // 幅度档位数量
 #define FRE_NUM 4          // 频率档位数量
 
