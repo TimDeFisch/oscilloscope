@@ -8,7 +8,8 @@
 #define BASE_LINE 128        // 基线
 #define AMPLITUDE 48         // 振幅
 #define AD_LEN 250           // 幅值，频率测量时用，采样1ms/次，整个周期250ms——更新频率4Hz
-#define DA_LEN 6000          // 存储DA数据的内存长度
+#define DA_LEN 8000          // 存储DA数据的内存长度
+#define START_ADDRESS 0x0050 // 6264存储起始地址
 
 #define MODE_NUM 3         // 工作模式数量
 #define MEASURE_MODE_NUM 2 // 测量模式数量
@@ -52,6 +53,8 @@ sfr AUXR1 = 0xA2;     // Auxiliary register1
 sfr ADC_CONTR = 0xBC; // A/D 转换控制特殊功能寄存器
 sfr ADC_RES = 0xBD;   // A/D 转换结果寄存器
 sfr CLK_DIV = 0x97;   // 时钟分频寄存器
+
+sfr16 DPTR= 0x82;             // DPTR寄存器，用于指向波形表
 
 void init_timer0(void);     // 定时器初始化
 void init_interrupts(void); // 中断初始化

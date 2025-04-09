@@ -73,7 +73,7 @@ void mode_realtime(void)
     // AD转化
     AD_get();
     // 实时信号存储到6264
-    XBYTE[0x0700 + address_offset] = (digital_buffer >> 1) + 0x40; // 保证片选为0的同时，使用余下的地址存储信号（注意，存储了带基线的一半，方便配合之后输出）
+    XBYTE[START_ADDRESS + address_offset] = (digital_buffer >> 1) + 0x40; // 保证片选为0的同时，使用余下的地址存储信号（注意，存储了带基线的一半，方便配合之后输出）
     address_offset++;
     if (address_offset >= DA_LEN)
     {
@@ -95,7 +95,7 @@ void mode_replay(void)
     // 实时信号输出到DAC通道2
     DA_CH2 = (digital_buffer >> 1) + 0x40;
     // 从6264中读取信号
-    DA_CH1 = XBYTE[0x0700 + replay_address_offset];
+    DA_CH1 = XBYTE[START_ADDRESS + replay_address_offset];
     replay_address_offset++;
     if (address_flag == 1)
     {
